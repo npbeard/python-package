@@ -1,0 +1,25 @@
+[project]
+name = "echochamber"
+version = "0.1.0"
+description = "The Digital Mirror: A Narrative Sentiment & Chaos Engine."
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [{ name = "Group 8" }]
+license = { text = "MIT" }
+dependencies = [
+  "python-dotenv>=1.0.0"
+]
+
+[project.urls]
+Repository = "https://github.com/npbeard/python-package"
+
+[project.scripts]
+echochamber = "echochamber.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.24.2"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
