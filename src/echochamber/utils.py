@@ -28,8 +28,9 @@ class EngineConfig:
 # -----------------------------
 def timed(fn: Callable[..., Any]) -> Callable[..., Any]:
     """
-    Decorator that measures runtime (seconds) and attaches it to the return value
-    if the return is a dict-like object, otherwise returns (result, seconds).
+    Decorator that measures runtime (seconds) and attaches it to the
+    return value if the return is a dict-like object, otherwise returns
+    (result, seconds).
     """
     @wraps(fn)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
