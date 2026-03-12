@@ -1,3 +1,5 @@
+import pytest
+
 from echochamber import Persona, NoirVoice
 from echochamber.utils import EngineConfig
 
@@ -43,9 +45,35 @@ def test_add_tags_no_duplicates():
 
 
 def test_persona_empty_name_raises():
-    import pytest
     with pytest.raises(ValueError):
         Persona(name="", voice=NoirVoice())
+
+
+def test_persona_whitespace_name_raises():
+    with pytest.raises(ValueError):
+        Persona(name="   ", voice=NoirVoice())
+
+
+def test_echo_rejects_non_positive_chunk_size():
+    p = Persona(name="Spade", voice=NoirVoice())
+    with pytest.raises(ValueError, match="chunk_size"):
+        list(p.echo("hello", chunk_size=0))
+
+
+def test_echo_once_rejects_negative_layers():
+    p = Persona(name="Spade", voice=NoirVoice())
+    with pytest.raises(ValueError, match="layers"):
+        p.echo_once("hello", layers=-1)
+
+
+def test_echo_once_rejects_negative_intensity_when_chaos_enabled():
+    p = Persona(
+        name="Spade",
+        voice=NoirVoice(),
+        config=EngineConfig(include_time=False, chaos=True),
+    )
+    with pytest.raises(ValueError, match="intensity"):
+        p.echo_once("hello", intensity=-1)
 
 
 def test_scifi_voice():

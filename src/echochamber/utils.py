@@ -9,6 +9,8 @@ import time
 from typing import Any, Callable
 
 
+# Module-level regex objects demonstrate object scope beyond local variables.
+
 # -----------------------------
 # Hashable immutable config
 # -----------------------------
@@ -34,6 +36,7 @@ def timed(fn: Callable[..., Any]) -> Callable[..., Any]:
     """
     @wraps(fn)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
+        # The wrapper preserves metadata while measuring runtime for the caller.
         start = time.perf_counter()
         result = fn(*args, **kwargs)
         elapsed = time.perf_counter() - start
@@ -74,6 +77,7 @@ def apply_chaos(text: str, intensity: int = 1) -> str:
     if intensity < 1:
         return text
 
+    # First normalize repeated punctuation before masking vowels.
     text = _PUNCT_RE.sub(r"\1", text)
 
     # mask every Nth vowel where N depends on intensity
@@ -96,6 +100,7 @@ def recursive_layers(text: str, fn: Callable[[str], str], layers: int) -> str:
     """
     if layers <= 0:
         return text
+    # Each call reduces the problem size by one layer until it reaches zero.
     return recursive_layers(fn(text), fn, layers - 1)
 
 

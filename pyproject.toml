@@ -1,11 +1,20 @@
 [project]
 name = "echochamber"
-version = "0.1.0"
+version = "0.1.1"
 description = "The Digital Mirror: A Narrative Sentiment & Chaos Engine."
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 authors = [{ name = "Group 8" }]
 license = { text = "MIT" }
+keywords = ["cli", "oop", "personas", "text", "education"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries :: Python Modules"
+]
 dependencies = [
   "python-dotenv>=1.0.0"
 ]
