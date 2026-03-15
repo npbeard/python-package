@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+from .conversations import Conversation
 from .personas import Persona
 from .voices import Voice, NoirVoice, SciFiVoice, TherapyVoice
 from .utils import EngineConfig
@@ -196,6 +197,33 @@ def build_parser() -> argparse.ArgumentParser:
         default=1,
         help="Chaos intensity (default 1)"
     )
+    parser.add_argument(
+        "--conversation",
+        action="store_true",
+        help="Simulate a multi-persona conversation."
+    )
+    parser.add_argument(
+        "--topic",
+        default=None,
+        help="Conversation topic used in simulation mode."
+    )
+    parser.add_argument(
+        "--rounds",
+        type=_non_negative_int,
+        default=2,
+        help="Number of conversation rounds."
+    )
+    parser.add_argument(
+        "--participants",
+        default="noir,scifi,therapy",
+        help="Comma-separated voice names for simulation mode."
+    )
+    parser.add_argument(
+        "--save-session",
+        type=Path,
+        default=None,
+        help="Optional path to save a simulated conversation as JSON."
+    )
     return parser
 
 
@@ -211,6 +239,42 @@ def main() -> None:
 
     if args.interactive:
         _interactive_session(default_voice, default_layers)
+        return
+
+    if args.conversation:
+        topic = args.topic or args.text
+        if not topic:
+            parser.error("--topic or text is required in conversation mode")
+
+        conversation = Conversation(title=topic)
+        for index, voice_name in enumerate(args.participants.split(","), start=1):
+            normalized = voice_name.strip()
+            if not normalized:
+                continue
+            conversation.add_personas(
+                Persona(
+                    name=f"{normalized.title()}-{index}",
+                    voice=_make_voice(normalized),
+                    tags=["cli", "conversation", normalized],
+                    config=EngineConfig(
+                        include_time=bool(args.time),
+                        chaos=bool(args.chaos),
+                    ),
+                )
+            )
+
+        messages = conversation.simulate(
+            topic,
+            rounds=args.rounds,
+            layers=args.layers if args.layers is not None else default_layers,
+            intensity=args.intensity,
+        )
+        for message in messages:
+            print(f"[{message.timestamp}] {message.speaker}: {message.content}")
+        print(conversation.summary_stats())
+        if args.save_session is not None:
+            conversation.save(args.save_session)
+            print(f"Saved session to {args.save_session}")
         return
 
     voice_name = args.voice or default_voice

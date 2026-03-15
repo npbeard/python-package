@@ -1,22 +1,26 @@
 # echochamber
 
-`echochamber` is a Python package for transforming text through stylized digital personas and is designed to demonstrate a wide set of course concepts inside a small, testable library.
+`echochamber` is a Python package for simulating multi-persona conversations, stylized text transformations, and lightweight narrative analysis. It is designed to demonstrate a wide set of course concepts inside a small, testable library.
 
 ## Features
 
 - Transform text through multiple persona voices: noir, sci-fi, and therapy
+- Simulate multi-round conversations between several personas
+- Save and reload sessions as JSON transcripts
+- Generate conversation statistics and replay logs
 - Use the library from Python code or from a command-line script
 - Apply recursive transformation layers
 - Add optional timestamp formatting and regex-based "chaos"
 - Stream output in chunks with a generator
 - Read input from a file path or use the interactive CLI menu
+- Expose an optional FastAPI app with path, query, and body parameters
 
 ## Installation
 
 Install from TestPyPI:
 
 ```bash
-pip install --index-url https://test.pypi.org/simple/ echochamber
+pip install --extra-index-url https://test.pypi.org/simple/ echochamber
 ```
 
 For local development:
@@ -26,22 +30,38 @@ pip install -e .
 pytest -q
 ```
 
+If you use `uv`, the equivalent local setup is:
+
+```bash
+uv venv
+source .venv/bin/activate
+uv pip install -e .[dev]
+pytest -q
+```
+
 ## Quick Start
 
 ### Python API
 
 ```python
-from echochamber import Persona, NoirVoice
+from echochamber import Conversation, Persona, NoirVoice, SciFiVoice
 from echochamber.utils import EngineConfig
 
-persona = Persona(
+spade = Persona(
     name="Spade",
     voice=NoirVoice(),
+    config=EngineConfig(include_time=False, chaos=False),
+)
+nova = Persona(
+    name="Nova",
+    voice=SciFiVoice(),
     config=EngineConfig(include_time=False, chaos=True),
 )
 
-result = persona.echo_once("The weather is rainy.", layers=2, intensity=2)
-print(result["result"].transformed)
+conversation = Conversation(title="Package launch ideas")
+conversation.add_personas(spade, nova)
+conversation.simulate("How should we present the project?", rounds=2, intensity=2)
+print(conversation.summary_stats())
 ```
 
 ### CLI
@@ -64,33 +84,41 @@ Launch the simple interactive menu:
 echochamber --interactive
 ```
 
+Simulate a multi-persona discussion and save it:
+
+```bash
+echochamber --conversation --topic "What would make a new digital storytelling tool memorable to first-time users?" --rounds 2 --participants noir,scifi,therapy --save-session session.json
+```
+
 ## Project Structure
 
 ```text
 python-package/
 ├── src/echochamber/
 │   ├── __init__.py
+│   ├── api.py
 │   ├── cli.py
+│   ├── conversations.py
 │   ├── personas.py
 │   ├── utils.py
 │   └── voices.py
 ├── tests/
 │   ├── test_cli.py
+│   ├── test_conversations.py
 │   ├── test_persona.py
 │   └── test_utils.py
 ├── scripts/
 │   └── echochamber_cli.py
+├── .env.example
 ├── pyproject.toml
 └── README.md
 ```
 
 ## Assignment Coverage
 
-This package intentionally covers more than the required ten points from the assignment.
-
 | Requirement | Where it appears |
 | --- | --- |
-| Classes | `Persona`, `Voice`, `NoirVoice`, `SciFiVoice`, `TherapyVoice`, `EngineConfig` |
+| Classes | `Persona`, `Conversation`, `Message`, `MemoryBank`, `Voice`, `EngineConfig` |
 | Instances | Creating `Persona(name="Spade", voice=NoirVoice())` |
 | Class attributes | `Voice.registry_name`, `Persona.default_chunk_size` |
 | Instance attributes | `Persona.name`, `voice`, `tags`, `config` |
@@ -111,9 +139,10 @@ This package intentionally covers more than the required ten points from the ass
 | Scripts | `scripts/echochamber_cli.py`, `[project.scripts]` in `pyproject.toml` |
 | Paths | CLI `--input-file` uses `pathlib.Path` |
 | Collections | Lists, dictionaries, and dataclasses across the package |
-| Iterables | `Persona.__iter__` and generator output |
+| Iterables | `Persona.__iter__`, `Conversation.__iter__`, and generator output |
 | Pass by reference vs copy | Utility copy helpers and tests |
-| Deep copy vs shallow copy | `deep_copy()` and `shallow_copy()` |
+| Deep copy vs shallow copy | `Conversation.clone_deep()` and `Conversation.clone_shallow()` |
+| APIs | Optional FastAPI app in `src/echochamber/api.py` with path/query/body parameters |
 | Menus | Interactive CLI mode with `--interactive` |
 | Datetime | `now_string()` |
 | String format time | `strftime` in `now_string()` |
@@ -140,8 +169,32 @@ pytest -q
 The tests currently cover:
 
 - persona behavior and validation
+- multi-persona conversation simulation, replay, cloning, and persistence
 - CLI helper behavior
 - regex, recursion, datetime formatting, and copy utilities
+
+## Optional API
+
+Install the API extra:
+
+```bash
+pip install -e .[api]
+```
+
+Create the FastAPI app:
+
+```python
+from echochamber import create_app
+
+app = create_app()
+```
+
+Example endpoints:
+
+- `POST /sessions`
+- `GET /sessions/{session_id}?include_stats=true`
+- `POST /sessions/{session_id}/messages`
+- `POST /sessions/{session_id}/simulate`
 
 ## Environment Variables
 

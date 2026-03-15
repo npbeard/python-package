@@ -97,3 +97,22 @@ def test_env_non_negative_int_rejects_negative_value(monkeypatch):
     monkeypatch.setenv("ECHOCHAMBER_DEFAULT_LAYERS", "-2")
     with pytest.raises(SystemExit, match="must be non-negative"):
         _env_non_negative_int("ECHOCHAMBER_DEFAULT_LAYERS", 1)
+
+
+def test_parser_supports_conversation_mode_arguments():
+    parser = build_parser()
+    args = parser.parse_args(
+        [
+            "--conversation",
+            "--topic",
+            "Class project ideas",
+            "--rounds",
+            "2",
+            "--participants",
+            "noir,scifi",
+        ]
+    )
+    assert args.conversation is True
+    assert args.topic == "Class project ideas"
+    assert args.rounds == 2
+    assert args.participants == "noir,scifi"
