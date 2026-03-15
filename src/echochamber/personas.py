@@ -3,7 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Iterable, Iterator, Optional
 
-from .utils import EngineConfig, apply_chaos, now_string, recursive_layers, timed
+from .utils import (
+    EngineConfig,
+    apply_chaos,
+    now_string,
+    recursive_layers,
+    timed,
+)
 from .voices import Voice
 
 
@@ -41,12 +47,17 @@ class Persona:
             raise ValueError("Persona name cannot be empty.")
 
     # Magic method: "call" a Persona like a function
-    def __call__(self, text: str, *, layers: int = 1, **kwargs: object) -> EchoResult:
+    def __call__(
+        self, text: str, *, layers: int = 1, **kwargs: object
+    ) -> EchoResult:
         return self.echo_once(text, layers=layers, **kwargs)["result"]
 
     # Magic method: nice debug string
     def __repr__(self) -> str:
-        return f"Persona(name={self.name!r}, voice={self.voice.registry_name!r}, tags={self.tags!r})"
+        return (
+            f"Persona(name={self.name!r}, "
+            f"voice={self.voice.registry_name!r}, tags={self.tags!r})"
+        )
 
     # Iterable behavior: iterate over tags (Collections/Iterables)
     def __iter__(self) -> Iterator[str]:
@@ -116,7 +127,11 @@ class Persona:
         """
         size = chunk_size or self.default_chunk_size
 
-        payload = self.echo_once(text, layers=layers, **kwargs)["result"].transformed
+        payload = self.echo_once(
+            text,
+            layers=layers,
+            **kwargs,
+        )["result"].transformed
 
         for i in range(0, len(payload), size):
-            yield payload[i : i + size]
+            yield payload[i: i + size]

@@ -28,7 +28,8 @@ class EngineConfig:
 # -----------------------------
 def timed(fn: Callable[..., Any]) -> Callable[..., Any]:
     """
-    Decorator that measures runtime (seconds) and attaches it to the return value
+    Decorator that measures runtime (seconds)
+    and attaches it to the return value
     if the return is a dict-like object, otherwise returns (result, seconds).
     """
     @wraps(fn)
@@ -93,9 +94,7 @@ def recursive_layers(text: str, fn: Callable[[str], str], layers: int) -> str:
     Apply fn to text recursively 'layers' times.
     Demonstrates recursion; ensure layers is small to avoid deep recursion.
     """
-    if layers <= 0:
-        return text
-    return recursive_layers(fn(text), fn, layers - 1)
+    return text if layers <= 0 else recursive_layers(fn(text), fn, layers - 1)
 
 
 # -----------------------------
