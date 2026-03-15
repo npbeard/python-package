@@ -43,8 +43,12 @@ class Persona:
     default_chunk_size: int = 16
 
     def __post_init__(self) -> None:
+        # Normalize user input once so every public method sees a clean name.
+        self.name = self.name.strip()
         if not self.name:
             raise ValueError("Persona name cannot be empty.")
+        if self.default_chunk_size <= 0:
+            raise ValueError("default_chunk_size must be positive.")
 
     # Magic method: "call" a Persona like a function
     def __call__(
@@ -56,7 +60,8 @@ class Persona:
     def __repr__(self) -> str:
         return (
             f"Persona(name={self.name!r}, "
-            f"voice={self.voice.registry_name!r}, tags={self.tags!r})"
+            f"voice={self.voice.registry_name!r}, "
+            f"tags={self.tags!r})"
         )
 
     # Iterable behavior: iterate over tags (Collections/Iterables)
@@ -86,13 +91,19 @@ class Persona:
 
         Returns dict so @timed can attach seconds.
         """
+        if layers < 0:
+            raise ValueError("layers must be non-negative.")
+
         cfg = config or self.config
 
         def one_pass(s: str) -> str:
+            # The composed voice object owns style; Persona owns orchestration.
             out = self.voice.transform(s)
             if cfg.chaos:
                 # allow intensity via kwargs; default argument example
                 intensity = int(kwargs.get("intensity", 1))
+                if intensity < 0:
+                    raise ValueError("intensity must be non-negative.")
                 out = apply_chaos(out, intensity=intensity)
             return out
 
@@ -125,13 +136,12 @@ class Persona:
         - default args: chunk_size defaults to class attribute
         - keyword-only args used
         """
-        size = chunk_size or self.default_chunk_size
+        size = self.default_chunk_size if chunk_size is None else chunk_size
+        if size <= 0:
+            raise ValueError("chunk_size must be positive.")
 
-        payload = self.echo_once(
-            text,
-            layers=layers,
-            **kwargs,
-        )["result"].transformed
+        echo_result = self.echo_once(text, layers=layers, **kwargs)
+        payload = echo_result["result"].transformed
 
         for i in range(0, len(payload), size):
             yield payload[i: i + size]

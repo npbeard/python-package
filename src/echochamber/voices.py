@@ -14,7 +14,7 @@ class Voice:
     registry_name: ClassVar[str] = "base"
 
     def transform(self, text: str) -> str:
-        # Instance method: override in subclasses
+        """Instance method: override in subclasses."""
         return text
 
 
