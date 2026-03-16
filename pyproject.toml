@@ -1,0 +1,61 @@
+[project]
+name = "echochamber"
+version = "0.1.3"
+description = "The Digital Mirror: A Narrative Sentiment & Chaos Engine."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Group 8" }]
+license = { text = "MIT" }
+keywords = ["cli", "oop", "personas", "text", "education"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries :: Python Modules"
+]
+dependencies = [
+  "python-dotenv>=1.0.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "build>=1.2.0",
+  "twine>=5.0.0"
+]
+api = [
+  "fastapi>=0.115.0",
+  "uvicorn>=0.30.0"
+]
+
+[project.urls]
+Repository = "https://github.com/npbeard/python-package"
+TestPyPI = "https://test.pypi.org/project/echochamber"
+
+[project.scripts]
+echochamber = "echochamber.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.24.2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/echochamber"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src/echochamber",
+  "/tests",
+  "/scripts",
+  "/README.md",
+  "/SUBMISSION_GUIDE.md",
+  "/LICENSE",
+  "/.env.example",
+  "/pyproject.toml"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

@@ -1,0 +1,31 @@
+"""
+echochamber: A narrative sentiment & chaos engine.
+
+Public API exports are defined here so users can do:
+
+from echochamber import Persona, NoirVoice
+"""
+__version__ = "0.1.3"
+
+from .personas import Persona, EchoResult
+from .conversations import Conversation, ConversationConfig, MemoryBank, Message
+from .api import create_app
+from .voices import Voice, NoirVoice, SciFiVoice, TherapyVoice
+from .utils import EngineConfig, timed
+
+__all__ = [
+    "__version__",
+    "Persona",
+    "EchoResult",
+    "Conversation",
+    "ConversationConfig",
+    "MemoryBank",
+    "Message",
+    "create_app",
+    "Voice",
+    "NoirVoice",
+    "SciFiVoice",
+    "TherapyVoice",
+    "EngineConfig",
+    "timed",
+]
