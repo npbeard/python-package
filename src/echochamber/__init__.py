@@ -5,7 +5,7 @@ Public API exports are defined here so users can do:
 
 from echochamber import Persona, NoirVoice
 """
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 from .personas import Persona, EchoResult
 from .conversations import Conversation, ConversationConfig, MemoryBank, Message
