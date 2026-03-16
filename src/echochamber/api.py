@@ -52,7 +52,7 @@ def create_app() -> Any:
             "Install the API extra with `pip install echochamber[api]`."
         ) from exc
 
-    app = FastAPI(title="echochamber API", version="0.1.3")
+    app = FastAPI(title="echochamber API", version="0.1.4")
     store = SessionStore(sessions={})
 
     @app.post("/sessions")
