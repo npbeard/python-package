@@ -54,6 +54,19 @@ def test_conversation_replay_and_stats():
 
 
 def test_conversation_clone_shallow_vs_deep():
+    """
+    Verify shallow-copy vs deep-copy semantics for Conversation.
+
+    Shallow copy (copy.copy):
+      - Creates a new Conversation object, but nested mutable fields
+        (history, memory.entries, participants) are *shared* with the
+        original.  Mutating the original's list is therefore visible
+        through the shallow clone.
+
+    Deep copy (copy.deepcopy):
+      - Recursively duplicates every nested object, so the clone is
+        completely independent of the original.
+    """
     conversation = Conversation(title="Clones")
     conversation.add_personas(_make_persona("Spade", "noir"))
     conversation.post_message("Spade", "Original line.")
@@ -61,10 +74,32 @@ def test_conversation_clone_shallow_vs_deep():
     shallow = conversation.clone_shallow()
     deep = conversation.clone_deep()
 
+    # Sanity-check: both clones start with the same history length.
+    assert len(shallow.history) == 1
+    assert len(deep.history) == 1
+
+    # Confirm the shallow clone really shares the same list object.
+    assert shallow.history is conversation.history, (
+        "shallow copy must share the history list with the original"
+    )
+
+    # Confirm the deep clone has its own independent list object.
+    assert deep.history is not conversation.history, (
+        "deep copy must NOT share the history list with the original"
+    )
+
+    # Mutate the original by appending a second message.
     conversation.post_message("Spade", "Second line.")
 
-    assert len(shallow.history) == 2
-    assert len(deep.history) == 1
+    # Shallow clone sees the new message because it shares the list.
+    assert len(shallow.history) == 2, (
+        "shallow clone should reflect the appended message (shared list)"
+    )
+
+    # Deep clone is unaffected because its list is independent.
+    assert len(deep.history) == 1, (
+        "deep clone should NOT reflect the appended message (independent list)"
+    )
 
 
 def test_conversation_save_and_load(tmp_path: Path):
